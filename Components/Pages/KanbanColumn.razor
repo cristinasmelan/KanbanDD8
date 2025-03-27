@@ -1,0 +1,14 @@
+﻿<div class="kanban-column">
+    <h2>@Title</h2>
+    <div class="kanban-cards">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Nova Coluna";
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}
