@@ -1,0 +1,100 @@
+﻿@page "/new-card"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<PageTitle>Inserir Novo Card</PageTitle>
+
+<div class="new-card">
+    <h2>Adicionar Novo Card</h2>
+    <form>
+        <div class="form-group">
+            <label for="titulo">Título:</label>
+            <input type="text" id="titulo" class="form-control" @bind="Titulo" />
+        </div>
+        <div class="form-group">
+            <label for="descricao">Descrição:</label>
+            <textarea id="descricao" class="form-control" @bind="Descricao"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="nomeUsuario">Nome do Usuário:</label>
+            <select id="nomeUsuario" class="form-control" @bind="SelectedUserId">
+                @foreach (var usuario in Usuarios)
+                {
+                    <option value="@usuario.Id">@usuario.Nome</option>
+                }
+            </select>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="btn-primary" @onclick="SalvarCard">Salvar</button>
+        </div>
+    </form>
+</div>
+
+@code {
+    private string Titulo { get; set; } = string.Empty;
+    private string Descricao { get; set; } = string.Empty;
+    private long SelectedUserId { get; set; } // ID do usuário selecionado
+    private List<Usuario> Usuarios { get; set; } = new(); // Lista de usuários para preencher o campo de seleção
+
+    // Método chamado ao carregar a página
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Buscar a lista de usuários existentes na API
+            Usuarios = await Http.GetFromJsonAsync<List<Usuario>>("api/usuarios");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao carregar usuários: {ex.Message}");
+        }
+    }
+
+    private async Task SalvarCard()
+    {
+        try
+        {
+            // Criação de um objeto que representa o card a ser salvo
+            var novoCard = new Tarefa
+                {
+                    Titulo = Titulo,
+                    Descricao = Descricao,
+                    Status = "A Fazer", // Sempre "A Fazer"
+                    UserId = SelectedUserId // ID do usuário selecionado no campo
+                };
+
+            // Enviar o card para o backend via POST
+            var response = await Http.PostAsJsonAsync("api/tarefas", novoCard);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Redirecionar para a página inicial após salvar
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                Console.WriteLine("Falha ao salvar o card.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao salvar o card: {ex.Message}");
+        }
+    }
+
+    // Classe usada para mapear usuários
+    public class Usuario
+    {
+        public long Id { get; set; }
+        public string Nome { get; set; } = string.Empty;
+    }
+
+    public class Tarefa
+    {
+        public long Id { get; set; }
+        public string Titulo { get; set; } = string.Empty;
+        public string Descricao { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public long UserId { get; set; }
+    }
+}

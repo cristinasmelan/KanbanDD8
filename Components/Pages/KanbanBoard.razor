@@ -1,0 +1,44 @@
+﻿@* @inject HttpClient Http
+
+<h1>Kanban</h1>
+@foreach (var tarefa in Tarefas)
+{
+	<div class="kanban-card">
+		<h3>@tarefa.Titulo</h3>
+		<p>@tarefa.Descricao</p>
+		<p>@tarefa.Data.ToShortDateString()</p>
+		<p>@tarefa.Status</p>
+	</div>
+}
+
+<button @onclick="AdicionarTarefa">Nova Tarefa</button>
+
+@code {
+	private List<Tarefa> Tarefas = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		Tarefas = await Http.GetFromJsonAsync<List<Tarefa>>("api/tarefas");
+	}
+
+	private async Task AdicionarTarefa()
+	{
+		var novaTarefa = new Tarefa
+			{
+				Titulo = "Nova Tarefa",
+				Descricao = "Descrição da tarefa",
+				Data = DateTime.Now,
+				Status = "A Fazer"
+			};
+
+		var response = await Http.PostAsJsonAsync("api/tarefas", novaTarefa);
+		if (response.IsSuccessStatusCode)
+		{
+			//Tarefas.Add(novaTarefa);
+			Console.WriteLine("Tarefa adicionada com sucesso!");
+
+		}
+	}
+
+
+} *@
