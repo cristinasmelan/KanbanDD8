@@ -1,0 +1,41 @@
+﻿@page "/login"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject KanbanFrontend.Services.AuthService AuthService
+
+<PageTitle>Login</PageTitle>
+
+<div class="new-card">
+    <h2>Login</h2>
+    <form>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" class="form-control" @bind="Email" placeholder="Digite seu email" />
+        </div>
+        <div class="form-group">
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" class="form-control" @bind="Senha" placeholder="Digite sua senha" />
+        </div>
+        <div class="form-actions">
+            <button type="button" class="btn-primary" @onclick="Logar">Entrar</button>
+        </div>
+    </form>
+</div>
+
+@code {
+    private string Email { get; set; } = string.Empty;
+    private string Senha { get; set; } = string.Empty;
+
+    private async Task Logar()
+    {
+        var response = await Http.PostAsJsonAsync("/api/auth/login", new { email = Email, password = Senha });
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/kanban");
+        }
+        else
+        {
+            Console.WriteLine("Falha no login.");
+        }
+    }
+}

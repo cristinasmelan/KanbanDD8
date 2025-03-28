@@ -1,54 +1,77 @@
 ﻿@page "/"
 @inject HttpClient Http
 
-<PageTitle>Home</PageTitle>
+<div class="container kanban-container">
+    <div class="user-input">
+        <label for="userId">Digite o Número do Usuário:</label>
+        <input id="userId" @bind="UserId" type="number" />
+        <button @onclick="CarregarTarefas">Carregar Tarefas</button>
+    </div>
+    <div class="kanban-board">
+        <div class="kanban-column">
+            <h3 class="kanban-column-title">A Fazer</h3>
+            @foreach (var tarefa in TarefasA)
+            {
+                <KanbanCard Title="@tarefa.Titulo" Description="@tarefa.Descricao"></KanbanCard>
+            }
+        </div>
 
-<div class="kanban-board">
-	<KanbanColumn Title="A Fazer">
-		@foreach (var tarefa in TarefasA)
-		{
-			<KanbanCard Title="@tarefa.Titulo" Description="@tarefa.Descricao"></KanbanCard>
-		}
-	</KanbanColumn>
+        <div class="kanban-column">
+            <h3 class="kanban-column-title">Fazendo</h3>
+            @foreach (var tarefa in TarefasF)
+            {
+                <KanbanCard Title="@tarefa.Titulo" Description="@tarefa.Descricao"></KanbanCard>
+            }
+        </div>
 
-	<KanbanColumn Title="Fazendo">
-		@foreach (var tarefa in TarefasF)
-		{
-			<KanbanCard Title="@tarefa.Titulo" Description="@tarefa.Descricao"></KanbanCard>
-		}
-	</KanbanColumn>
-
-	<KanbanColumn Title="Finalizado">
-		@foreach (var tarefa in TarefasFin)
-		{
-			<KanbanCard Title="@tarefa.Titulo" Description="@tarefa.Descricao"></KanbanCard>
-		}
-	</KanbanColumn>
+        <div class="kanban-column">
+            <h3 class="kanban-column-title">Finalizado</h3>
+            @foreach (var tarefa in TarefasFin)
+            {
+                <KanbanCard Title="@tarefa.Titulo" Description="@tarefa.Descricao"></KanbanCard>
+            }
+        </div>
+    </div>
 </div>
 
 @code {
-	private List<Tarefa> TarefasA = new();
-	private List<Tarefa> TarefasF = new();
-	private List<Tarefa> TarefasFin = new();
+    private List<Tarefa> TarefasA = new();
+    private List<Tarefa> TarefasF = new();
+    private List<Tarefa> TarefasFin = new();
+    private long UserId { get; set; } = 1; // ID padrão definido como 1
 
-	protected override async Task OnInitializedAsync()
-	{
-		// Chama a API para buscar as tarefas
-		var tarefas = await Http.GetFromJsonAsync<List<Tarefa>>("api/tarefas/1"); // Substitua "1" pelo ID do usuário autenticado
+    protected override async Task OnInitializedAsync()
+    {
+        // Carrega tarefas automaticamente ao inicializar com o ID 1
+        await CarregarTarefas();
+    }
 
-		// Filtra as tarefas por status
-		TarefasA = tarefas.Where(t => t.Status == "A Fazer").ToList();
-		TarefasF = tarefas.Where(t => t.Status == "Fazendo").ToList();
-		TarefasFin = tarefas.Where(t => t.Status == "Finalizado").ToList();
-	}
+    private async Task CarregarTarefas()
+    {
+        if (UserId > 0)
+        {
+            // Chama a API para buscar as tarefas com o ID atual
+            var tarefas = await Http.GetFromJsonAsync<List<Tarefa>>($"api/tarefas/{UserId}");
 
-	public class Tarefa
-	{
-		public long Id { get; set; }
-		public string Titulo { get; set; }
-		public string Descricao { get; set; }
-		public string Status { get; set; }
-		public DateTime Data { get; set; }
-		public long UserId { get; set; }
-	}
+            // Filtra as tarefas por status
+            TarefasA = tarefas.Where(t => t.Status == "A Fazer").ToList();
+            TarefasF = tarefas.Where(t => t.Status == "Fazendo").ToList();
+            TarefasFin = tarefas.Where(t => t.Status == "Finalizado").ToList();
+        }
+        else
+        {
+            // Lógica para tratar IDs inválidos (opcional)
+            Console.WriteLine("ID do usuário é inválido.");
+        }
+    }
+
+    public class Tarefa
+    {
+        public long Id { get; set; }
+        public string Titulo { get; set; }
+        public string Descricao { get; set; }
+        public string Status { get; set; }
+        public DateTime Data { get; set; }
+        public long UserId { get; set; }
+    }
 }

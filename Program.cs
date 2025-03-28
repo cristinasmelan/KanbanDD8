@@ -1,4 +1,5 @@
 using KanbanDD8.Components;
+using KanbanFrontend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,8 @@ builder.Services.AddScoped(sp => new HttpClient
 {
     BaseAddress = new Uri("https://localhost:7196/")
 });
+
+builder.Services.AddScoped<AuthService>();
 
 var app = builder.Build();
 

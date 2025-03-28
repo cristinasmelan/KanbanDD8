@@ -8,13 +8,17 @@
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
 	<nav class="flex-column">
-		<div class="nav-item px-3">
-			<NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+		<div class="nav-item px-3 mb-3">
+			<NavLink class="nav-link" href="/login" Match="NavLinkMatch.Prefix">
+				<span class="bi bi-file-lock-fill" aria-hidden="true"></span> Login
+			</NavLink>
+
+			<NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
 				<span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
 			</NavLink>
 
 			<NavLink class="nav-link" href="/new-card" Match="NavLinkMatch.Prefix">
-				<span class="bi bi-plus-square-fill" aria-hidden="true"></span> Novo
+				<span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Novo
 			</NavLink>
 
 		</div>
